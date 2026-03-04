@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SALES_REP
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  passwordHash  String
+  name          String
+  phone         String?
+  role          Role     @default(SALES_REP)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  salesRepRetailers SalesRepRetailer[]
+
+  @@map("users")
+}
+
+model Region {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  areas Area[]
+
+  @@map("regions")
+}
+
+model Area {
+  id          Int         @id @default(autoincrement())
+  name        String
+  regionId    Int
+  region      Region      @relation(fields: [regionId], references: [id])
+  territories Territory[]
+  retailers   Retailer[]
+
+  @@map("areas")
+}
+
+model Territory {
+  id        Int        @id @default(autoincrement())
+  name      String
+  areaId    Int
+  area      Area       @relation(fields: [areaId], references: [id])
+  retailers Retailer[]
+
+  @@map("territories")
+}
+
+model Distributor {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  retailers Retailer[]
+
+  @@map("distributors")
+}
+
+model Retailer {
+  id            Int      @id @default(autoincrement())
+  uid           String   @unique // Business UID
+  name          String
+  phone         String
+  regionId      Int
+  areaId        Int
+  distributorId Int
+  territoryId   Int
+  points        Int      @default(0)
+  routes        String?
+  notes         String?
+  updatedAt     DateTime @updatedAt
+
+  area        Area        @relation(fields: [areaId], references: [id])
+  distributor Distributor @relation(fields: [distributorId], references: [id])
+  territory   Territory   @relation(fields: [territoryId], references: [id])
+
+  salesRepRetailers SalesRepRetailer[]
+
+  @@map("retailers")
+}
+
+model SalesRepRetailer {
+  salesRepId Int
+  retailerId Int
+  assignedAt DateTime @default(now())
+
+  salesRep User     @relation(fields: [salesRepId], references: [id])
+  retailer Retailer @relation(fields: [retailerId], references: [id])
+
+  @@id([salesRepId, retailerId])
+  @@map("sales_rep_retailers")
+}
