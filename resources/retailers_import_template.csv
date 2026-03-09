@@ -1,0 +1,5 @@
+uid,name,phone,regionId,areaId,distributorId,territoryId,routes
+RET-001,Green Grocery,01711000111,1,1,1,1,Mirpur Route 1
+RET-002,Daily Needs,01711000222,1,1,1,1,Mirpur Route 2
+RET-003,Quick Shop,01711000333,1,1,1,1,Uttara Route 1
+RET-004,Corner Store,01711000444,1,1,1,1,Dhanmondi Route 5

@@ -5,30 +5,30 @@ export declare class AdminService {
     createRegion(data: {
         name: string;
     }): Promise<{
-        name: string;
         id: number;
+        name: string;
     }>;
     createArea(data: {
         name: string;
         regionId: number;
     }): Promise<{
-        name: string;
         id: number;
+        name: string;
         regionId: number;
     }>;
     createTerritory(data: {
         name: string;
         areaId: number;
     }): Promise<{
-        name: string;
         id: number;
+        name: string;
         areaId: number;
     }>;
     createDistributor(data: {
         name: string;
     }): Promise<{
-        name: string;
         id: number;
+        name: string;
     }>;
     importRetailersContent(fileBuffer: Buffer): Promise<any[]>;
     bulkAssign(salesRepId: number, retailerIds: number[]): Promise<import("@prisma/client").Prisma.BatchPayload>;

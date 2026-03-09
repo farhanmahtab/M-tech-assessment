@@ -9,13 +9,13 @@ export declare class AdminController {
     }>;
     createArea(data: CreateAreaDto): Promise<{
         name: string;
-        regionId: number;
         id: number;
+        regionId: number;
     }>;
     createTerritory(data: CreateTerritoryDto): Promise<{
         name: string;
-        areaId: number;
         id: number;
+        areaId: number;
     }>;
     createDistributor(data: CreateDistributorDto): Promise<{
         name: string;

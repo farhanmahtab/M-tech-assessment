@@ -19,28 +19,28 @@ export declare class RetailersService {
             name: string;
             regionId: number;
         };
-        distributor: {
-            id: number;
-            name: string;
-        };
         territory: {
             id: number;
             name: string;
             areaId: number;
         };
+        distributor: {
+            id: number;
+            name: string;
+        };
     } & {
         id: number;
-        uid: string;
         name: string;
         phone: string;
+        updatedAt: Date;
         regionId: number;
         areaId: number;
+        uid: string;
         distributorId: number;
         territoryId: number;
         points: number;
         routes: string | null;
         notes: string | null;
-        updatedAt: Date;
     }) | null>;
     update(uid: string, data: {
         points?: number;
@@ -48,22 +48,22 @@ export declare class RetailersService {
         notes?: string;
     }): Promise<{
         salesRepRetailers: {
-            salesRepId: number;
-            retailerId: number;
             assignedAt: Date;
+            retailerId: number;
+            salesRepId: number;
         }[];
     } & {
         id: number;
-        uid: string;
         name: string;
         phone: string;
+        updatedAt: Date;
         regionId: number;
         areaId: number;
+        uid: string;
         distributorId: number;
         territoryId: number;
         points: number;
         routes: string | null;
         notes: string | null;
-        updatedAt: Date;
     }>;
 }

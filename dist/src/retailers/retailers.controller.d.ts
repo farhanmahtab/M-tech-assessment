@@ -6,51 +6,51 @@ export declare class RetailersController {
     findAll(req: any, query: RetailerQueryDto): Promise<{}>;
     findOne(uid: string): Promise<({
         area: {
+            id: number;
             name: string;
             regionId: number;
-            id: number;
         };
         territory: {
+            id: number;
             name: string;
             areaId: number;
-            id: number;
         };
         distributor: {
-            name: string;
             id: number;
+            name: string;
         };
     } & {
+        id: number;
         name: string;
+        phone: string;
+        updatedAt: Date;
         regionId: number;
         areaId: number;
+        uid: string;
+        distributorId: number;
+        territoryId: number;
         points: number;
         routes: string | null;
         notes: string | null;
-        distributorId: number;
-        territoryId: number;
-        id: number;
-        uid: string;
-        phone: string;
-        updatedAt: Date;
     }) | null>;
     update(uid: string, data: UpdateRetailerDto): Promise<{
         salesRepRetailers: {
-            salesRepId: number;
-            retailerId: number;
             assignedAt: Date;
+            retailerId: number;
+            salesRepId: number;
         }[];
     } & {
+        id: number;
         name: string;
+        phone: string;
+        updatedAt: Date;
         regionId: number;
         areaId: number;
+        uid: string;
+        distributorId: number;
+        territoryId: number;
         points: number;
         routes: string | null;
         notes: string | null;
-        distributorId: number;
-        territoryId: number;
-        id: number;
-        uid: string;
-        phone: string;
-        updatedAt: Date;
     }>;
 }

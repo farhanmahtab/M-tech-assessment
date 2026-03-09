@@ -97,7 +97,9 @@ __decorate([
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Retailers imported successfully' }),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
-    __param(0, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
+        validators: [],
+    }))),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)

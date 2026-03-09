@@ -5,6 +5,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  ParseFilePipe,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -77,7 +78,14 @@ export class AdminController {
   })
   @ApiResponse({ status: 201, description: 'Retailers imported successfully' })
   @UseInterceptors(FileInterceptor('file'))
-  async importRetailers(@UploadedFile() file: Express.Multer.File) {
+  async importRetailers(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
     return this.adminService.importRetailersContent(file.buffer);
   }
 
