@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-// import csv from 'csv-parser';
-// import { Readable } from 'stream';
-
 import * as Papa from 'papaparse';
+import * as bcrypt from 'bcrypt';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateRegionDto,
+  UpdateAreaDto,
+  UpdateTerritoryDto,
+  UpdateDistributorDto,
+} from './dto/admin.dto';
 
 interface RetailerRow {
   uid: string;
@@ -20,9 +26,44 @@ interface RetailerRow {
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
-  // Master Data CRUD
+  // Region CRUD
+  async findAllRegions() {
+    return this.prisma.region.findMany({ include: { areas: true } });
+  }
+
+  async findOneRegion(id: number) {
+    const region = await this.prisma.region.findUnique({
+      where: { id },
+      include: { areas: true },
+    });
+    if (!region) throw new NotFoundException(`Region with ID ${id} not found`);
+    return region;
+  }
+
   async createRegion(data: { name: string }) {
     return this.prisma.region.create({ data });
+  }
+
+  async updateRegion(id: number, data: UpdateRegionDto) {
+    return this.prisma.region.update({ where: { id }, data });
+  }
+
+  async deleteRegion(id: number) {
+    return this.prisma.region.delete({ where: { id } });
+  }
+
+  // Area CRUD
+  async findAllAreas() {
+    return this.prisma.area.findMany({ include: { region: true } });
+  }
+
+  async findOneArea(id: number) {
+    const area = await this.prisma.area.findUnique({
+      where: { id },
+      include: { region: true, territories: true },
+    });
+    if (!area) throw new NotFoundException(`Area with ID ${id} not found`);
+    return area;
   }
 
   async createArea(data: { name: string; regionId: number }) {
@@ -34,6 +75,29 @@ export class AdminService {
     });
   }
 
+  async updateArea(id: number, data: UpdateAreaDto) {
+    return this.prisma.area.update({ where: { id }, data });
+  }
+
+  async deleteArea(id: number) {
+    return this.prisma.area.delete({ where: { id } });
+  }
+
+  // Territory CRUD
+  async findAllTerritories() {
+    return this.prisma.territory.findMany({ include: { area: true } });
+  }
+
+  async findOneTerritory(id: number) {
+    const territory = await this.prisma.territory.findUnique({
+      where: { id },
+      include: { area: true, retailers: true },
+    });
+    if (!territory)
+      throw new NotFoundException(`Territory with ID ${id} not found`);
+    return territory;
+  }
+
   async createTerritory(data: { name: string; areaId: number }) {
     return this.prisma.territory.create({
       data: {
@@ -43,54 +107,87 @@ export class AdminService {
     });
   }
 
+  async updateTerritory(id: number, data: UpdateTerritoryDto) {
+    return this.prisma.territory.update({ where: { id }, data });
+  }
+
+  async deleteTerritory(id: number) {
+    return this.prisma.territory.delete({ where: { id } });
+  }
+
+  // Distributor CRUD
+  async findAllDistributors() {
+    return this.prisma.distributor.findMany();
+  }
+
+  async findOneDistributor(id: number) {
+    const distributor = await this.prisma.distributor.findUnique({
+      where: { id },
+    });
+    if (!distributor)
+      throw new NotFoundException(`Distributor with ID ${id} not found`);
+    return distributor;
+  }
+
   async createDistributor(data: { name: string }) {
     return this.prisma.distributor.create({ data });
   }
 
-  // // Bulk Import
-  // async importRetailersContent(fileBuffer: Buffer) {
-  //   const retailers: any[] = [];
-  //   const stream = Readable.from(fileBuffer);
+  async updateDistributor(id: number, data: UpdateDistributorDto) {
+    return this.prisma.distributor.update({ where: { id }, data });
+  }
 
-  //   return new Promise((resolve, reject) => {
-  //     stream
-  //       .pipe(csv())
-  //       .on('data', (data) => retailers.push(data))
-  //       .on('end', async () => {
-  //         try {
-  //           const results: any[] = [];
-  //           for (const row of retailers) {
-  //             const retailer = await this.prisma.retailer.upsert({
-  //               where: { uid: row.uid },
-  //               update: {
-  //                 name: row.name,
-  //                 phone: row.phone,
-  //                 regionId: parseInt(row.regionId),
-  //                 areaId: parseInt(row.areaId),
-  //                 distributorId: parseInt(row.distributorId),
-  //                 territoryId: parseInt(row.territoryId),
-  //                 routes: row.routes,
-  //               },
-  //               create: {
-  //                 uid: row.uid,
-  //                 name: row.name,
-  //                 phone: row.phone,
-  //                 regionId: parseInt(row.regionId),
-  //                 areaId: parseInt(row.areaId),
-  //                 distributorId: parseInt(row.distributorId),
-  //                 territoryId: parseInt(row.territoryId),
-  //                 routes: row.routes,
-  //               },
-  //             });
-  //             results.push(retailer);
-  //           }
-  //           resolve(results);
-  //         } catch (error) {
-  //           reject(error);
-  //         }
-  //       });
-  //   });
-  // }
+  async deleteDistributor(id: number) {
+    return this.prisma.distributor.delete({ where: { id } });
+  }
+
+  // User CRUD
+  async findAllUsers() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async findOneUser(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { salesRepRetailers: true },
+    });
+    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
+    const { passwordHash, ...rest } = user;
+    return rest;
+  }
+
+  async createUser(data: CreateUserDto) {
+    const { password, ...rest } = data;
+    const passwordHash = await bcrypt.hash(password, 10);
+    return this.prisma.user.create({
+      data: { ...rest, passwordHash },
+    });
+  }
+
+  async updateUser(id: number, data: UpdateUserDto) {
+    const { password, ...rest } = data;
+    const updateData: any = { ...rest };
+    if (password) {
+      updateData.passwordHash = await bcrypt.hash(password, 10);
+    }
+    return this.prisma.user.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  async deleteUser(id: number) {
+    return this.prisma.user.delete({ where: { id } });
+  }
 
   async importRetailersContent(fileBuffer: Buffer): Promise<any[]> {
     const csvString = fileBuffer.toString('utf-8');
@@ -131,6 +228,7 @@ export class AdminService {
     }
     return results;
   }
+
   // Bulk Assignment
   async bulkAssign(salesRepId: number, retailerIds: number[]) {
     const data = retailerIds.map((retailerId) => ({

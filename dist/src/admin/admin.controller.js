@@ -27,17 +27,80 @@ let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
     }
+    async findAllRegions() {
+        return this.adminService.findAllRegions();
+    }
+    async findOneRegion(id) {
+        return this.adminService.findOneRegion(id);
+    }
     async createRegion(data) {
         return this.adminService.createRegion(data);
+    }
+    async updateRegion(id, data) {
+        return this.adminService.updateRegion(id, data);
+    }
+    async deleteRegion(id) {
+        return this.adminService.deleteRegion(id);
+    }
+    async findAllAreas() {
+        return this.adminService.findAllAreas();
+    }
+    async findOneArea(id) {
+        return this.adminService.findOneArea(id);
     }
     async createArea(data) {
         return this.adminService.createArea(data);
     }
+    async updateArea(id, data) {
+        return this.adminService.updateArea(id, data);
+    }
+    async deleteArea(id) {
+        return this.adminService.deleteArea(id);
+    }
+    async findAllTerritories() {
+        return this.adminService.findAllTerritories();
+    }
+    async findOneTerritory(id) {
+        return this.adminService.findOneTerritory(id);
+    }
     async createTerritory(data) {
         return this.adminService.createTerritory(data);
     }
+    async updateTerritory(id, data) {
+        return this.adminService.updateTerritory(id, data);
+    }
+    async deleteTerritory(id) {
+        return this.adminService.deleteTerritory(id);
+    }
+    async findAllDistributors() {
+        return this.adminService.findAllDistributors();
+    }
+    async findOneDistributor(id) {
+        return this.adminService.findOneDistributor(id);
+    }
     async createDistributor(data) {
         return this.adminService.createDistributor(data);
+    }
+    async updateDistributor(id, data) {
+        return this.adminService.updateDistributor(id, data);
+    }
+    async deleteDistributor(id) {
+        return this.adminService.deleteDistributor(id);
+    }
+    async findAllUsers() {
+        return this.adminService.findAllUsers();
+    }
+    async findOneUser(id) {
+        return this.adminService.findOneUser(id);
+    }
+    async createUser(data) {
+        return this.adminService.createUser(data);
+    }
+    async updateUser(id, data) {
+        return this.adminService.updateUser(id, data);
+    }
+    async deleteUser(id) {
+        return this.adminService.deleteUser(id);
     }
     async importRetailers(file) {
         return this.adminService.importRetailersContent(file.buffer);
@@ -48,6 +111,21 @@ let AdminController = class AdminController {
 };
 exports.AdminController = AdminController;
 __decorate([
+    (0, common_1.Get)('regions'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all regions' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findAllRegions", null);
+__decorate([
+    (0, common_1.Get)('regions/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get a region by ID' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findOneRegion", null);
+__decorate([
     (0, common_1.Post)('regions'),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new region' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Region created successfully' }),
@@ -56,6 +134,38 @@ __decorate([
     __metadata("design:paramtypes", [admin_dto_1.CreateRegionDto]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "createRegion", null);
+__decorate([
+    (0, common_1.Patch)('regions/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a region' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, admin_dto_1.UpdateRegionDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "updateRegion", null);
+__decorate([
+    (0, common_1.Delete)('regions/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a region' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "deleteRegion", null);
+__decorate([
+    (0, common_1.Get)('areas'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all areas' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findAllAreas", null);
+__decorate([
+    (0, common_1.Get)('areas/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get an area by ID' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findOneArea", null);
 __decorate([
     (0, common_1.Post)('areas'),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new area' }),
@@ -66,6 +176,38 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "createArea", null);
 __decorate([
+    (0, common_1.Patch)('areas/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update an area' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, admin_dto_1.UpdateAreaDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "updateArea", null);
+__decorate([
+    (0, common_1.Delete)('areas/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete an area' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "deleteArea", null);
+__decorate([
+    (0, common_1.Get)('territories'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all territories' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findAllTerritories", null);
+__decorate([
+    (0, common_1.Get)('territories/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get a territory by ID' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findOneTerritory", null);
+__decorate([
     (0, common_1.Post)('territories'),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new territory' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Territory created successfully' }),
@@ -75,6 +217,38 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "createTerritory", null);
 __decorate([
+    (0, common_1.Patch)('territories/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a territory' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, admin_dto_1.UpdateTerritoryDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "updateTerritory", null);
+__decorate([
+    (0, common_1.Delete)('territories/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a territory' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "deleteTerritory", null);
+__decorate([
+    (0, common_1.Get)('distributors'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all distributors' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findAllDistributors", null);
+__decorate([
+    (0, common_1.Get)('distributors/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get a distributor by ID' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findOneDistributor", null);
+__decorate([
     (0, common_1.Post)('distributors'),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new distributor' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Distributor created successfully' }),
@@ -83,6 +257,64 @@ __decorate([
     __metadata("design:paramtypes", [admin_dto_1.CreateDistributorDto]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "createDistributor", null);
+__decorate([
+    (0, common_1.Patch)('distributors/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a distributor' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, admin_dto_1.UpdateDistributorDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "updateDistributor", null);
+__decorate([
+    (0, common_1.Delete)('distributors/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a distributor' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "deleteDistributor", null);
+__decorate([
+    (0, common_1.Get)('users'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all users' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findAllUsers", null);
+__decorate([
+    (0, common_1.Get)('users/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get a user by ID' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "findOneUser", null);
+__decorate([
+    (0, common_1.Post)('users'),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new user' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User created successfully' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [admin_dto_1.CreateUserDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "createUser", null);
+__decorate([
+    (0, common_1.Patch)('users/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a user' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, admin_dto_1.UpdateUserDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "updateUser", null);
+__decorate([
+    (0, common_1.Delete)('users/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a user' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "deleteUser", null);
 __decorate([
     (0, common_1.Post)('retailers/import'),
     (0, swagger_1.ApiOperation)({ summary: 'Bulk import retailers via CSV' }),

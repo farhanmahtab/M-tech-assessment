@@ -9,9 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BulkAssignDto = exports.CreateDistributorDto = exports.CreateTerritoryDto = exports.CreateAreaDto = exports.CreateRegionDto = void 0;
+exports.BulkAssignDto = exports.UpdateUserDto = exports.CreateUserDto = exports.UpdateDistributorDto = exports.CreateDistributorDto = exports.UpdateTerritoryDto = exports.CreateTerritoryDto = exports.UpdateAreaDto = exports.CreateAreaDto = exports.UpdateRegionDto = exports.CreateRegionDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const client_1 = require("@prisma/client");
 class CreateRegionDto {
     name;
 }
@@ -22,6 +23,9 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateRegionDto.prototype, "name", void 0);
+class UpdateRegionDto extends (0, swagger_1.PartialType)(CreateRegionDto) {
+}
+exports.UpdateRegionDto = UpdateRegionDto;
 class CreateAreaDto {
     name;
     regionId;
@@ -39,6 +43,9 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateAreaDto.prototype, "regionId", void 0);
+class UpdateAreaDto extends (0, swagger_1.PartialType)(CreateAreaDto) {
+}
+exports.UpdateAreaDto = UpdateAreaDto;
 class CreateTerritoryDto {
     name;
     areaId;
@@ -56,6 +63,9 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateTerritoryDto.prototype, "areaId", void 0);
+class UpdateTerritoryDto extends (0, swagger_1.PartialType)(CreateTerritoryDto) {
+}
+exports.UpdateTerritoryDto = UpdateTerritoryDto;
 class CreateDistributorDto {
     name;
 }
@@ -69,6 +79,57 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateDistributorDto.prototype, "name", void 0);
+class UpdateDistributorDto extends (0, swagger_1.PartialType)(CreateDistributorDto) {
+}
+exports.UpdateDistributorDto = UpdateDistributorDto;
+class CreateUserDto {
+    username;
+    password;
+    name;
+    phone;
+    role;
+}
+exports.CreateUserDto = CreateUserDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'sr2', description: 'Username for the user' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "username", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'password', description: 'Password for the user' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "password", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Sales Rep 2', description: 'Full name of the user' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        example: '01711000555',
+        description: 'Phone number of the user',
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "phone", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        enum: client_1.Role,
+        default: client_1.Role.SALES_REP,
+        description: 'Role of the user',
+    }),
+    (0, class_validator_1.IsEnum)(client_1.Role),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "role", void 0);
+class UpdateUserDto extends (0, swagger_1.PartialType)(CreateUserDto) {
+}
+exports.UpdateUserDto = UpdateUserDto;
 class BulkAssignDto {
     salesRepId;
     retailerIds;
