@@ -6,18 +6,14 @@ import {
   Delete,
   Param,
   Body,
-  UseGuards,
-  UseInterceptors,
-  UploadedFile,
-  ParseFilePipe,
-  ParseIntPipe,
+  Req,
+  UseGuards, ParseIntPipe
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.guard';
 import { Role } from '@prisma/client';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -225,7 +221,7 @@ export class AdminController {
 
   // Utility Endpoints
   @Post('retailers/import')
-  @ApiOperation({ summary: 'Bulk import retailers via CSV' })
+  @ApiOperation({ summary: 'Bulk import retailers via CSV (True Streaming)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -236,16 +232,24 @@ export class AdminController {
     },
   })
   @ApiResponse({ status: 201, description: 'Retailers imported successfully' })
-  @UseInterceptors(FileInterceptor('file'))
-  async importRetailers(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [], // Add size or type validators if needed
-      }),
-    )
-    file: Express.Multer.File,
-  ) {
-    return this.adminService.importRetailersContent(file.buffer);
+  async importRetailers(@Req() req: any) {
+    const Busboy = require('busboy');
+    const bb = Busboy({ headers: req.headers });
+
+    return new Promise((resolve, reject) => {
+      bb.on('file', (name, file, info) => {
+        if (name === 'file') {
+          this.adminService
+            .importRetailersStream(file)
+            .then(resolve)
+            .catch(reject);
+        } else {
+          file.resume();
+        }
+      });
+      bb.on('error', reject);
+      req.pipe(bb);
+    });
   }
 
   @Post('assignments/bulk')
@@ -253,6 +257,19 @@ export class AdminController {
   @ApiResponse({ status: 201, description: 'Retailers assigned successfully' })
   async bulkAssign(@Body() bulkAssignDto: BulkAssignDto) {
     return this.adminService.bulkAssign(
+      bulkAssignDto.salesRepId,
+      bulkAssignDto.retailerIds,
+    );
+  }
+
+  @Delete('assignments/bulk')
+  @ApiOperation({ summary: 'Bulk unassign retailers from a sales rep' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retailers unassigned successfully',
+  })
+  async bulkUnassign(@Body() bulkAssignDto: BulkAssignDto) {
+    return this.adminService.bulkUnassign(
       bulkAssignDto.salesRepId,
       bulkAssignDto.retailerIds,
     );

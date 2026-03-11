@@ -45,7 +45,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const Papa = __importStar(require("papaparse"));
 const bcrypt = __importStar(require("bcrypt"));
 let AdminService = class AdminService {
     prisma;
@@ -188,27 +187,14 @@ let AdminService = class AdminService {
     async deleteUser(id) {
         return this.prisma.user.delete({ where: { id } });
     }
-    async importRetailersContent(fileBuffer) {
-        const csvString = fileBuffer.toString('utf-8');
-        const parseResult = Papa.parse(csvString, {
-            header: true,
-            skipEmptyLines: true,
-        });
-        const retailers = parseResult.data;
-        const results = [];
-        for (const row of retailers) {
-            const retailer = await this.prisma.retailer.upsert({
-                where: { uid: row.uid },
-                update: {
-                    name: row.name,
-                    phone: row.phone,
-                    regionId: parseInt(row.regionId, 10),
-                    areaId: parseInt(row.areaId, 10),
-                    distributorId: parseInt(row.distributorId, 10),
-                    territoryId: parseInt(row.territoryId, 10),
-                    routes: row.routes,
-                },
-                create: {
+    async importRetailersStream(fileStream) {
+        const csv = require('csv-parser');
+        const retailers = [];
+        return new Promise((resolve, reject) => {
+            fileStream
+                .pipe(csv())
+                .on('data', (row) => {
+                retailers.push({
                     uid: row.uid,
                     name: row.name,
                     phone: row.phone,
@@ -217,11 +203,26 @@ let AdminService = class AdminService {
                     distributorId: parseInt(row.distributorId, 10),
                     territoryId: parseInt(row.territoryId, 10),
                     routes: row.routes,
-                },
-            });
-            results.push(retailer);
-        }
-        return results;
+                });
+            })
+                .on('end', async () => {
+                try {
+                    const result = await this.prisma.retailer.createMany({
+                        data: retailers,
+                        skipDuplicates: true,
+                    });
+                    resolve(result);
+                }
+                catch (error) {
+                    reject(error);
+                }
+            })
+                .on('error', (error) => reject(error));
+        });
+    }
+    async importRetailersContent(fileBuffer) {
+        const { Readable } = require('stream');
+        return this.importRetailersStream(Readable.from(fileBuffer));
     }
     async bulkAssign(salesRepId, retailerIds) {
         const data = retailerIds.map((retailerId) => ({
@@ -231,6 +232,14 @@ let AdminService = class AdminService {
         return this.prisma.salesRepRetailer.createMany({
             data,
             skipDuplicates: true,
+        });
+    }
+    async bulkUnassign(salesRepId, retailerIds) {
+        return this.prisma.salesRepRetailer.deleteMany({
+            where: {
+                salesRepId,
+                retailerId: { in: retailerIds },
+            },
         });
     }
 };

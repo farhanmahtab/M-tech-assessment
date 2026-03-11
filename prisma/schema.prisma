@@ -88,6 +88,8 @@ model Retailer {
 
   salesRepRetailers SalesRepRetailer[]
 
+  @@index([name, phone, uid])
+  @@index([areaId, distributorId, territoryId])
   @@map("retailers")
 }
 

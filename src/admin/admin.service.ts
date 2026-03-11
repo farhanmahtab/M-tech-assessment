@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as Papa from 'papaparse';
 import * as bcrypt from 'bcrypt';
 import {
   CreateUserDto,
@@ -189,44 +188,46 @@ export class AdminService {
     return this.prisma.user.delete({ where: { id } });
   }
 
-  async importRetailersContent(fileBuffer: Buffer): Promise<any[]> {
-    const csvString = fileBuffer.toString('utf-8');
-    const parseResult: Papa.ParseResult<RetailerRow> = Papa.parse<RetailerRow>(
-      csvString,
-      {
-        header: true,
-        skipEmptyLines: true,
-      },
-    );
-    const retailers: RetailerRow[] = parseResult.data;
+  async importRetailersStream(
+    fileStream: NodeJS.ReadableStream,
+  ): Promise<any> {
+    const csv = require('csv-parser');
+    const retailers: any[] = [];
 
-    const results: any[] = [];
-    for (const row of retailers) {
-      const retailer = await this.prisma.retailer.upsert({
-        where: { uid: row.uid },
-        update: {
-          name: row.name,
-          phone: row.phone,
-          regionId: parseInt(row.regionId, 10),
-          areaId: parseInt(row.areaId, 10),
-          distributorId: parseInt(row.distributorId, 10),
-          territoryId: parseInt(row.territoryId, 10),
-          routes: row.routes,
-        },
-        create: {
-          uid: row.uid,
-          name: row.name,
-          phone: row.phone,
-          regionId: parseInt(row.regionId, 10),
-          areaId: parseInt(row.areaId, 10),
-          distributorId: parseInt(row.distributorId, 10),
-          territoryId: parseInt(row.territoryId, 10),
-          routes: row.routes,
-        },
-      });
-      results.push(retailer);
-    }
-    return results;
+    return new Promise((resolve, reject) => {
+      fileStream
+        .pipe(csv())
+        .on('data', (row: RetailerRow) => {
+          retailers.push({
+            uid: row.uid,
+            name: row.name,
+            phone: row.phone,
+            regionId: parseInt(row.regionId, 10),
+            areaId: parseInt(row.areaId, 10),
+            distributorId: parseInt(row.distributorId, 10),
+            territoryId: parseInt(row.territoryId, 10),
+            routes: row.routes,
+          });
+        })
+        .on('end', async () => {
+          try {
+            const result = await this.prisma.retailer.createMany({
+              data: retailers,
+              skipDuplicates: true,
+            });
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        })
+        .on('error', (error) => reject(error));
+    });
+  }
+
+  // Optimized version for legacy buffer support (wrapping the stream version)
+  async importRetailersContent(fileBuffer: Buffer): Promise<any> {
+    const { Readable } = require('stream');
+    return this.importRetailersStream(Readable.from(fileBuffer));
   }
 
   // Bulk Assignment
@@ -239,6 +240,15 @@ export class AdminService {
     return this.prisma.salesRepRetailer.createMany({
       data,
       skipDuplicates: true,
+    });
+  }
+
+  async bulkUnassign(salesRepId: number, retailerIds: number[]) {
+    return this.prisma.salesRepRetailer.deleteMany({
+      where: {
+        salesRepId,
+        retailerId: { in: retailerIds },
+      },
     });
   }
 }

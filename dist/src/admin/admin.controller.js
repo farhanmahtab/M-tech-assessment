@@ -19,7 +19,6 @@ const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_guard_2 = require("../auth/roles.guard");
 const client_1 = require("@prisma/client");
-const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
 const admin_dto_1 = require("./dto/admin.dto");
 let AdminController = class AdminController {
@@ -102,11 +101,30 @@ let AdminController = class AdminController {
     async deleteUser(id) {
         return this.adminService.deleteUser(id);
     }
-    async importRetailers(file) {
-        return this.adminService.importRetailersContent(file.buffer);
+    async importRetailers(req) {
+        const Busboy = require('busboy');
+        const bb = Busboy({ headers: req.headers });
+        return new Promise((resolve, reject) => {
+            bb.on('file', (name, file, info) => {
+                if (name === 'file') {
+                    this.adminService
+                        .importRetailersStream(file)
+                        .then(resolve)
+                        .catch(reject);
+                }
+                else {
+                    file.resume();
+                }
+            });
+            bb.on('error', reject);
+            req.pipe(bb);
+        });
     }
     async bulkAssign(bulkAssignDto) {
         return this.adminService.bulkAssign(bulkAssignDto.salesRepId, bulkAssignDto.retailerIds);
+    }
+    async bulkUnassign(bulkAssignDto) {
+        return this.adminService.bulkUnassign(bulkAssignDto.salesRepId, bulkAssignDto.retailerIds);
     }
 };
 exports.AdminController = AdminController;
@@ -317,7 +335,7 @@ __decorate([
 ], AdminController.prototype, "deleteUser", null);
 __decorate([
     (0, common_1.Post)('retailers/import'),
-    (0, swagger_1.ApiOperation)({ summary: 'Bulk import retailers via CSV' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Bulk import retailers via CSV (True Streaming)' }),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
     (0, swagger_1.ApiBody)({
         schema: {
@@ -328,10 +346,7 @@ __decorate([
         },
     }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Retailers imported successfully' }),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
-    __param(0, (0, common_1.UploadedFile)(new common_1.ParseFilePipe({
-        validators: [],
-    }))),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
@@ -345,6 +360,18 @@ __decorate([
     __metadata("design:paramtypes", [admin_dto_1.BulkAssignDto]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "bulkAssign", null);
+__decorate([
+    (0, common_1.Delete)('assignments/bulk'),
+    (0, swagger_1.ApiOperation)({ summary: 'Bulk unassign retailers from a sales rep' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Retailers unassigned successfully',
+    }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [admin_dto_1.BulkAssignDto]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "bulkUnassign", null);
 exports.AdminController = AdminController = __decorate([
     (0, swagger_1.ApiTags)('admin'),
     (0, swagger_1.ApiBearerAuth)(),
