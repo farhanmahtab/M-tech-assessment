@@ -1,11 +1,6 @@
 #!/bin/sh
 
-# Wait for DB to be ready
-echo "Waiting for database to be ready..."
-while ! nc -z db 5432; do
-  sleep 1
-done
-echo "Database is up!"
+# wait loop removed, handled by docker-compose healthchecks
 
 # Sync database schema
 echo "Syncing database schema..."

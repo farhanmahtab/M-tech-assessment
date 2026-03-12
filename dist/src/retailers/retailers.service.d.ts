@@ -1,9 +1,10 @@
+import { OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type { Cache } from 'cache-manager';
-export declare class RetailersService {
+export declare class RetailersService implements OnModuleInit {
     private prisma;
     private cacheManager;
-    constructor(prisma: PrismaService, cacheManager: Cache);
+    constructor(prisma: PrismaService, cacheManager: any);
+    onModuleInit(): Promise<void>;
     findAllAssigned(salesRepId: number, query: {
         page?: number;
         limit?: number;
@@ -12,7 +13,7 @@ export declare class RetailersService {
         areaId?: number;
         distributorId?: number;
         territoryId?: number;
-    }): Promise<{}>;
+    }): Promise<any>;
     findOne(uid: string): Promise<({
         area: {
             id: number;

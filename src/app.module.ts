@@ -6,22 +6,11 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AdminModule } from './admin/admin.module';
 import { RetailersModule } from './retailers/retailers.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-yet';
+import { GlobalCacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
-    CacheModule.registerAsync({
-      isGlobal: true,
-      useFactory: async () => ({
-        store: await redisStore({
-          socket: {
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379'),
-          },
-        }),
-      }),
-    }),
+    GlobalCacheModule, // Our hard-override module
     PrismaModule,
     AuthModule,
     UsersModule,
