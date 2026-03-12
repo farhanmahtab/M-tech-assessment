@@ -1,11 +1,5 @@
 # Retailer Sales Representative App - Backend
 
-[![NestJS](https://img.shields.io/badge/framework-NestJS-red.svg)](https://nestjs.com/)
-[![Prisma](https://img.shields.io/badge/orm-Prisma-blue.svg)](https://www.prisma.io/)
-[![Redis](https://img.shields.io/badge/cache-Redis-red.svg)](https://redis.io/)
-
-A high-performance, scalable backend built for managing a nationwide network of retailers and sales representatives in Bangladesh. This project is designed to handle large-scale data imports, hierarchical geographic relationships, and optimized retailer management for sales teams.
-
 ---
 
 ## 🚀 Key Features
@@ -73,6 +67,10 @@ npx prisma db seed
 npm run start:dev
 ```
 
+### Start server thorugh whole stack
+```bash
+docker-compose up --build
+```
 ---
 
 ## 📖 API Documentation
@@ -92,5 +90,4 @@ To handle **1 million+ retailers**, the following design decisions were made:
 3.  **Normalized Hierarchies**: Minimizing redundancy in geographic data while maintaining fast query paths.
 4.  **Pagination**: Strict enforced pagination across all collection endpoints.
 
----
-*Developed for a Scalable Future.* 🌐
+

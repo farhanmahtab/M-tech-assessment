@@ -3,7 +3,7 @@ import { UpdateRetailerDto, RetailerQueryDto } from './dto/retailer.dto';
 export declare class RetailersController {
     private retailersService;
     constructor(retailersService: RetailersService);
-    findAll(req: any, query: RetailerQueryDto): Promise<{}>;
+    findAll(req: any, query: RetailerQueryDto): Promise<any>;
     findOne(uid: string): Promise<({
         area: {
             id: number;

@@ -15,25 +15,14 @@ const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const admin_module_1 = require("./admin/admin.module");
 const retailers_module_1 = require("./retailers/retailers.module");
-const cache_manager_1 = require("@nestjs/cache-manager");
-const cache_manager_redis_yet_1 = require("cache-manager-redis-yet");
+const cache_module_1 = require("./cache/cache.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            cache_manager_1.CacheModule.registerAsync({
-                isGlobal: true,
-                useFactory: async () => ({
-                    store: await (0, cache_manager_redis_yet_1.redisStore)({
-                        socket: {
-                            host: process.env.REDIS_HOST || 'localhost',
-                            port: parseInt(process.env.REDIS_PORT || '6379'),
-                        },
-                    }),
-                }),
-            }),
+            cache_module_1.GlobalCacheModule,
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,

@@ -1,15 +1,28 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
 
 @Injectable()
-export class RetailersService {
+export class RetailersService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
+    @Inject(CACHE_MANAGER) private cacheManager: any,
+  ) {
+    console.log('[RetailersService] Cache Manager injected');
+  }
+
+  async onModuleInit() {
+    try {
+        console.log('[RetailersService] Final verification starting...');
+        const testKey = 'FINAL_HEARTBEAT';
+        await this.cacheManager.set(testKey, 'SUCCESS', 60000);
+        const val = await this.cacheManager.get(testKey);
+        console.log(`[RetailersService] Final Read-back: ${val}`);
+    } catch (e) {
+        console.error('[RetailersService] Final test error:', e.message);
+    }
+  }
 
   async findAllAssigned(
     salesRepId: number,
@@ -23,9 +36,19 @@ export class RetailersService {
       territoryId?: number;
     },
   ) {
-    const cacheKey = `retailers:sr:${salesRepId}:page:${query.page}:limit:${query.limit}:search:${query.search}:region:${query.regionId}:area:${query.areaId}:dist:${query.distributorId}:terr:${query.territoryId}`;
-    const cachedData = await this.cacheManager.get(cacheKey);
-    if (cachedData) return cachedData;
+    const cacheKey = `sr:${salesRepId}:page:${query.page || 1}:limit:${query.limit || 10}:search:${query.search || 'none'}`;
+    
+    try {
+      const cachedData = await this.cacheManager.get(cacheKey);
+      if (cachedData) {
+        console.log(`[Cache-Verified] Hit: ${cacheKey}`);
+        return cachedData;
+      }
+    } catch (e) {
+      console.error(`[Cache-Verified] Error reading: ${e.message}`);
+    }
+
+    console.log(`[Cache-Verified] Miss: ${cacheKey}`);
 
     const page = query.page || 1;
     const limit = query.limit || 10;
@@ -73,7 +96,14 @@ export class RetailersService {
       },
     };
 
-    await this.cacheManager.set(cacheKey, result, 60000); // 1 minute TTL
+    try {
+      // Direct call to Keyv set
+      await this.cacheManager.set(cacheKey, result, 60000); 
+      console.log(`[Cache-Verified] SET confirmed in Redis: ${cacheKey}`);
+    } catch (e) {
+      console.error(`[Cache-Verified] SET error: ${e.message}`);
+    }
+
     return result;
   }
 
@@ -97,15 +127,6 @@ export class RetailersService {
       data,
       include: { salesRepRetailers: true },
     });
-
-    // Invalidate caches for all assigned SRs (simplistic approach for demo)
-    for (const sr of retailer.salesRepRetailers) {
-      const pattern = `retailers:sr:${sr.salesRepId}*`;
-      // In a real app, we'd use a more precise invalidation or redis patterns
-      // but for this task, clearing just for the current SR is fine if we knew context
-      // Simplified: we'll just let TTL handle it or clear specifically if we track keys
-    }
-
     return retailer;
   }
 }

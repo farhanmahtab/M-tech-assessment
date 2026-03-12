@@ -92,25 +92,25 @@ export declare class AdminService {
         areaId: number;
     })[]>;
     findOneTerritory(id: number): Promise<{
-        area: {
-            id: number;
-            name: string;
-            regionId: number;
-        };
         retailers: {
             id: number;
             name: string;
+            phone: string;
+            updatedAt: Date;
             regionId: number;
             areaId: number;
             uid: string;
-            phone: string;
             distributorId: number;
             territoryId: number;
             points: number;
             routes: string | null;
             notes: string | null;
-            updatedAt: Date;
         }[];
+        area: {
+            id: number;
+            name: string;
+            regionId: number;
+        };
     } & {
         id: number;
         name: string;
@@ -158,55 +158,55 @@ export declare class AdminService {
     }>;
     findAllUsers(): Promise<{
         id: number;
+        username: string;
         name: string;
         phone: string | null;
-        username: string;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
     }[]>;
     findOneUser(id: number): Promise<{
         salesRepRetailers: {
-            salesRepId: number;
-            retailerId: number;
             assignedAt: Date;
+            retailerId: number;
+            salesRepId: number;
         }[];
         id: number;
+        username: string;
         name: string;
         phone: string | null;
-        updatedAt: Date;
-        username: string;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
+        updatedAt: Date;
     }>;
     createUser(data: CreateUserDto): Promise<{
         id: number;
-        name: string;
-        phone: string | null;
-        updatedAt: Date;
         username: string;
         passwordHash: string;
+        name: string;
+        phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
+        updatedAt: Date;
     }>;
     updateUser(id: number, data: UpdateUserDto): Promise<{
         id: number;
-        name: string;
-        phone: string | null;
-        updatedAt: Date;
         username: string;
         passwordHash: string;
+        name: string;
+        phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
+        updatedAt: Date;
     }>;
     deleteUser(id: number): Promise<{
         id: number;
-        name: string;
-        phone: string | null;
-        updatedAt: Date;
         username: string;
         passwordHash: string;
+        name: string;
+        phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
+        updatedAt: Date;
     }>;
     importRetailersStream(fileStream: NodeJS.ReadableStream): Promise<any>;
     importRetailersContent(fileBuffer: Buffer): Promise<any>;
