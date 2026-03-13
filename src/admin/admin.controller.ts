@@ -7,7 +7,8 @@ import {
   Param,
   Body,
   Req,
-  UseGuards, ParseIntPipe
+  UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -35,6 +36,8 @@ import {
   UpdateUserDto,
   BulkAssignDto,
 } from './dto/admin.dto';
+import type { Request } from 'express';
+import busboy from 'busboy';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -232,12 +235,11 @@ export class AdminController {
     },
   })
   @ApiResponse({ status: 201, description: 'Retailers imported successfully' })
-  async importRetailers(@Req() req: any) {
-    const Busboy = require('busboy');
-    const bb = Busboy({ headers: req.headers });
+  async importRetailers(@Req() req: Request) {
+    const bb = busboy({ headers: req.headers });
 
     return new Promise((resolve, reject) => {
-      bb.on('file', (name, file, info) => {
+      bb.on('file', (name, file) => {
         if (name === 'file') {
           this.adminService
             .importRetailersStream(file)

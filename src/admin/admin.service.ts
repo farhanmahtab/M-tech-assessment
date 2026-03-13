@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import type { Prisma } from '@prisma/client';
+import csvParser from 'csv-parser';
+import { Readable } from 'node:stream';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -20,6 +23,9 @@ interface RetailerRow {
   territoryId: string;
   routes: string;
 }
+
+const toError = (error: unknown): Error =>
+  error instanceof Error ? error : new Error(String(error));
 
 @Injectable()
 export class AdminService {
@@ -160,8 +166,11 @@ export class AdminService {
       include: { salesRepRetailers: true },
     });
     if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-    const { passwordHash, ...rest } = user;
-    return rest;
+    const sanitizedUser: Omit<typeof user, 'passwordHash'> & {
+      passwordHash?: string;
+    } = { ...user };
+    delete sanitizedUser.passwordHash;
+    return sanitizedUser;
   }
 
   async createUser(data: CreateUserDto) {
@@ -174,7 +183,11 @@ export class AdminService {
 
   async updateUser(id: number, data: UpdateUserDto) {
     const { password, ...rest } = data;
-    const updateData: any = { ...rest };
+    const updateData: Omit<UpdateUserDto, 'password'> & {
+      passwordHash?: string;
+    } = {
+      ...rest,
+    };
     if (password) {
       updateData.passwordHash = await bcrypt.hash(password, 10);
     }
@@ -190,13 +203,12 @@ export class AdminService {
 
   async importRetailersStream(
     fileStream: NodeJS.ReadableStream,
-  ): Promise<any> {
-    const csv = require('csv-parser');
-    const retailers: any[] = [];
+  ): Promise<Prisma.BatchPayload> {
+    const retailers: Prisma.RetailerCreateManyInput[] = [];
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Prisma.BatchPayload>((resolve, reject) => {
       fileStream
-        .pipe(csv())
+        .pipe(csvParser())
         .on('data', (row: RetailerRow) => {
           retailers.push({
             uid: row.uid,
@@ -209,24 +221,22 @@ export class AdminService {
             routes: row.routes,
           });
         })
-        .on('end', async () => {
-          try {
-            const result = await this.prisma.retailer.createMany({
+        .on('end', () => {
+          this.prisma.retailer
+            .createMany({
               data: retailers,
               skipDuplicates: true,
-            });
-            resolve(result);
-          } catch (error) {
-            reject(error);
-          }
+            })
+            .then(resolve)
+            .catch((error: unknown) => reject(toError(error)));
         })
-        .on('error', (error) => reject(error));
+        .on('error', (error: unknown) => reject(toError(error)));
     });
   }
 
-  // Optimized version for legacy buffer support (wrapping the stream version)
-  async importRetailersContent(fileBuffer: Buffer): Promise<any> {
-    const { Readable } = require('stream');
+  async importRetailersContent(
+    fileBuffer: Buffer,
+  ): Promise<Prisma.BatchPayload> {
     return this.importRetailersStream(Readable.from(fileBuffer));
   }
 

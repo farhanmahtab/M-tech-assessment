@@ -41,11 +41,17 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
+const csv_parser_1 = __importDefault(require("csv-parser"));
+const node_stream_1 = require("node:stream");
+const toError = (error) => error instanceof Error ? error : new Error(String(error));
 let AdminService = class AdminService {
     prisma;
     constructor(prisma) {
@@ -163,8 +169,9 @@ let AdminService = class AdminService {
         });
         if (!user)
             throw new common_1.NotFoundException(`User with ID ${id} not found`);
-        const { passwordHash, ...rest } = user;
-        return rest;
+        const sanitizedUser = { ...user };
+        delete sanitizedUser.passwordHash;
+        return sanitizedUser;
     }
     async createUser(data) {
         const { password, ...rest } = data;
@@ -175,7 +182,9 @@ let AdminService = class AdminService {
     }
     async updateUser(id, data) {
         const { password, ...rest } = data;
-        const updateData = { ...rest };
+        const updateData = {
+            ...rest,
+        };
         if (password) {
             updateData.passwordHash = await bcrypt.hash(password, 10);
         }
@@ -188,11 +197,10 @@ let AdminService = class AdminService {
         return this.prisma.user.delete({ where: { id } });
     }
     async importRetailersStream(fileStream) {
-        const csv = require('csv-parser');
         const retailers = [];
         return new Promise((resolve, reject) => {
             fileStream
-                .pipe(csv())
+                .pipe((0, csv_parser_1.default)())
                 .on('data', (row) => {
                 retailers.push({
                     uid: row.uid,
@@ -205,24 +213,20 @@ let AdminService = class AdminService {
                     routes: row.routes,
                 });
             })
-                .on('end', async () => {
-                try {
-                    const result = await this.prisma.retailer.createMany({
-                        data: retailers,
-                        skipDuplicates: true,
-                    });
-                    resolve(result);
-                }
-                catch (error) {
-                    reject(error);
-                }
+                .on('end', () => {
+                this.prisma.retailer
+                    .createMany({
+                    data: retailers,
+                    skipDuplicates: true,
+                })
+                    .then(resolve)
+                    .catch((error) => reject(toError(error)));
             })
-                .on('error', (error) => reject(error));
+                .on('error', (error) => reject(toError(error)));
         });
     }
     async importRetailersContent(fileBuffer) {
-        const { Readable } = require('stream');
-        return this.importRetailersStream(Readable.from(fileBuffer));
+        return this.importRetailersStream(node_stream_1.Readable.from(fileBuffer));
     }
     async bulkAssign(salesRepId, retailerIds) {
         const data = retailerIds.map((retailerId) => ({

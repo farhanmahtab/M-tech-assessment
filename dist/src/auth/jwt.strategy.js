@@ -21,7 +21,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             secretOrKey: process.env.JWT_SECRET || 'super-secret-key',
         });
     }
-    async validate(payload) {
+    validate(payload) {
         return {
             userId: payload.sub,
             username: payload.username,
