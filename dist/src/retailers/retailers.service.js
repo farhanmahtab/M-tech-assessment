@@ -22,33 +22,18 @@ let RetailersService = class RetailersService {
     constructor(prisma, cacheManager) {
         this.prisma = prisma;
         this.cacheManager = cacheManager;
-        console.log('[RetailersService] Cache Manager injected');
-    }
-    async onModuleInit() {
-        try {
-            console.log('[RetailersService] Final verification starting...');
-            const testKey = 'FINAL_HEARTBEAT';
-            await this.cacheManager.set(testKey, 'SUCCESS', 60000);
-            const val = await this.cacheManager.get(testKey);
-            console.log(`[RetailersService] Final Read-back: ${val}`);
-        }
-        catch (e) {
-            console.error('[RetailersService] Final test error:', e.message);
-        }
     }
     async findAllAssigned(salesRepId, query) {
         const cacheKey = `sr:${salesRepId}:page:${query.page || 1}:limit:${query.limit || 10}:search:${query.search || 'none'}`;
         try {
             const cachedData = await this.cacheManager.get(cacheKey);
             if (cachedData) {
-                console.log(`[Cache-Verified] Hit: ${cacheKey}`);
                 return cachedData;
             }
         }
         catch (e) {
-            console.error(`[Cache-Verified] Error reading: ${e.message}`);
+            console.error(`[Cache] Error reading: ${e.message}`);
         }
-        console.log(`[Cache-Verified] Miss: ${cacheKey}`);
         const page = query.page || 1;
         const limit = query.limit || 10;
         const skip = (page - 1) * limit;
@@ -95,10 +80,9 @@ let RetailersService = class RetailersService {
         };
         try {
             await this.cacheManager.set(cacheKey, result, 60000);
-            console.log(`[Cache-Verified] SET confirmed in Redis: ${cacheKey}`);
         }
         catch (e) {
-            console.error(`[Cache-Verified] SET error: ${e.message}`);
+            console.error(`[Cache] Persist error: ${e.message}`);
         }
         return result;
     }

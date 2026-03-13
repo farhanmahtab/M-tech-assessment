@@ -9,25 +9,16 @@ import { Keyv } from 'keyv';
     {
       provide: CACHE_MANAGER,
       useFactory: async () => {
-        const redisUri = 'redis://127.0.0.1:6379';
-        console.log(`[Cache-Final] Overriding CACHE_MANAGER with Redis: ${redisUri}`);
+        const redisUri = process.env.REDIS_HOST 
+          ? `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT || '6379'}`
+          : 'redis://127.0.0.1:6379';
         
-        // Pure Keyv instance without any NestJS wrapping magic
-        const keyv = new Keyv({
+        // Return a clean Keyv instance for global caching
+        return new Keyv({
           store: new KeyvRedis(redisUri),
           namespace: 'retailers',
-          ttl: 60000
+          ttl: 60000 // Default 1 minute TTL
         });
-
-        // Immediate persistence check
-        try {
-          await keyv.set('OVERRIDE_VERIFICATION', 'PASSED', 60000);
-          console.log('[Cache-Final] Redis override CONNECTION SUCCESS');
-        } catch (e) {
-          console.error('[Cache-Final] Redis override CONNECTION FAILED:', e.message);
-        }
-
-        return keyv;
       },
     },
   ],

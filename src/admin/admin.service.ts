@@ -224,7 +224,6 @@ export class AdminService {
     });
   }
 
-  // Optimized version for legacy buffer support (wrapping the stream version)
   async importRetailersContent(fileBuffer: Buffer): Promise<any> {
     const { Readable } = require('stream');
     return this.importRetailersStream(Readable.from(fileBuffer));

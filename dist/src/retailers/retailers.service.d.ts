@@ -1,10 +1,8 @@
-import { OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-export declare class RetailersService implements OnModuleInit {
+export declare class RetailersService {
     private prisma;
     private cacheManager;
     constructor(prisma: PrismaService, cacheManager: any);
-    onModuleInit(): Promise<void>;
     findAllAssigned(salesRepId: number, query: {
         page?: number;
         limit?: number;
