@@ -6,6 +6,11 @@ export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import type { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user: { role: Role };
+}
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -19,7 +24,7 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
-    const { user } = context.switchToHttp().getRequest();
+    const { user } = context.switchToHttp().getRequest<AuthenticatedRequest>();
     return requiredRoles.some((role) => user.role === role);
   }
 }

@@ -1,4 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
+import type { Prisma } from '@prisma/client';
 import { CreateUserDto, UpdateUserDto, UpdateRegionDto, UpdateAreaDto, UpdateTerritoryDto, UpdateDistributorDto } from './dto/admin.dto';
 export declare class AdminService {
     private prisma;
@@ -164,19 +165,23 @@ export declare class AdminService {
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
     }[]>;
-    findOneUser(id: number): Promise<{
+    findOneUser(id: number): Promise<Omit<{
         salesRepRetailers: {
             assignedAt: Date;
             retailerId: number;
             salesRepId: number;
         }[];
+    } & {
         id: number;
         username: string;
+        passwordHash: string;
         name: string;
         phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
         updatedAt: Date;
+    }, "passwordHash"> & {
+        passwordHash?: string;
     }>;
     createUser(data: CreateUserDto): Promise<{
         id: number;
@@ -208,8 +213,8 @@ export declare class AdminService {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    importRetailersStream(fileStream: NodeJS.ReadableStream): Promise<any>;
-    importRetailersContent(fileBuffer: Buffer): Promise<any>;
-    bulkAssign(salesRepId: number, retailerIds: number[]): Promise<import("@prisma/client").Prisma.BatchPayload>;
-    bulkUnassign(salesRepId: number, retailerIds: number[]): Promise<import("@prisma/client").Prisma.BatchPayload>;
+    importRetailersStream(fileStream: NodeJS.ReadableStream): Promise<Prisma.BatchPayload>;
+    importRetailersContent(fileBuffer: Buffer): Promise<Prisma.BatchPayload>;
+    bulkAssign(salesRepId: number, retailerIds: number[]): Promise<Prisma.BatchPayload>;
+    bulkUnassign(salesRepId: number, retailerIds: number[]): Promise<Prisma.BatchPayload>;
 }

@@ -10,7 +10,7 @@ import { GlobalCacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
-    GlobalCacheModule, // Our hard-override module
+    GlobalCacheModule,
     PrismaModule,
     AuthModule,
     UsersModule,

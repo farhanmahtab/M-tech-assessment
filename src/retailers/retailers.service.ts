@@ -23,7 +23,7 @@ export class RetailersService {
     },
   ) {
     const cacheKey = `sr:${salesRepId}:page:${query.page || 1}:limit:${query.limit || 10}:search:${query.search || 'none'}`;
-    
+
     try {
       const cachedData = await this.cacheManager.get(cacheKey);
       if (cachedData) {
@@ -80,7 +80,7 @@ export class RetailersService {
     };
 
     try {
-      await this.cacheManager.set(cacheKey, result, 60000); 
+      await this.cacheManager.set(cacheKey, result, 60000);
     } catch (e) {
       console.error(`[Cache] Persist error: ${e.message}`);
     }

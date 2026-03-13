@@ -10,47 +10,47 @@ export declare class RetailersController {
             name: string;
             regionId: number;
         };
+        distributor: {
+            id: number;
+            name: string;
+        };
         territory: {
             id: number;
             name: string;
             areaId: number;
         };
-        distributor: {
-            id: number;
-            name: string;
-        };
     } & {
         id: number;
+        uid: string;
         name: string;
         phone: string;
-        updatedAt: Date;
         regionId: number;
         areaId: number;
-        uid: string;
         distributorId: number;
         territoryId: number;
         points: number;
         routes: string | null;
         notes: string | null;
+        updatedAt: Date;
     }) | null>;
     update(uid: string, data: UpdateRetailerDto): Promise<{
         salesRepRetailers: {
-            assignedAt: Date;
-            retailerId: number;
             salesRepId: number;
+            retailerId: number;
+            assignedAt: Date;
         }[];
     } & {
         id: number;
+        uid: string;
         name: string;
         phone: string;
-        updatedAt: Date;
         regionId: number;
         areaId: number;
-        uid: string;
         distributorId: number;
         territoryId: number;
         points: number;
         routes: string | null;
         notes: string | null;
+        updatedAt: Date;
     }>;
 }

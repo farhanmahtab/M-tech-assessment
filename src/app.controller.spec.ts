@@ -17,7 +17,9 @@ describe('AppController', () => {
   describe('root', () => {
     it('should return health check message', () => {
       const result = appController.getHello();
-      expect(result.message).toBe('Backend API for Retailer Management System is running!');
+      expect(result.message).toBe(
+        'Backend API for Retailer Management System is running!',
+      );
       expect(result).toHaveProperty('time');
     });
   });

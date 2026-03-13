@@ -1,5 +1,6 @@
 import { AdminService } from './admin.service';
 import { CreateRegionDto, UpdateRegionDto, CreateAreaDto, UpdateAreaDto, CreateTerritoryDto, UpdateTerritoryDto, CreateDistributorDto, UpdateDistributorDto, CreateUserDto, UpdateUserDto, BulkAssignDto } from './dto/admin.dto';
+import type { Request } from 'express';
 export declare class AdminController {
     private adminService;
     constructor(adminService: AdminService);
@@ -87,13 +88,18 @@ export declare class AdminController {
         areaId: number;
     })[]>;
     findOneTerritory(id: number): Promise<{
+        area: {
+            id: number;
+            name: string;
+            regionId: number;
+        };
         retailers: {
             id: number;
             name: string;
-            phone: string;
-            updatedAt: Date;
             regionId: number;
             areaId: number;
+            phone: string;
+            updatedAt: Date;
             uid: string;
             distributorId: number;
             territoryId: number;
@@ -101,11 +107,6 @@ export declare class AdminController {
             routes: string | null;
             notes: string | null;
         }[];
-        area: {
-            id: number;
-            name: string;
-            regionId: number;
-        };
     } & {
         id: number;
         name: string;
@@ -148,31 +149,35 @@ export declare class AdminController {
     }>;
     findAllUsers(): Promise<{
         id: number;
-        username: string;
         name: string;
+        username: string;
         phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
     }[]>;
-    findOneUser(id: number): Promise<{
+    findOneUser(id: number): Promise<Omit<{
         salesRepRetailers: {
-            assignedAt: Date;
-            retailerId: number;
             salesRepId: number;
+            retailerId: number;
+            assignedAt: Date;
         }[];
+    } & {
         id: number;
-        username: string;
         name: string;
+        username: string;
+        passwordHash: string;
         phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
         updatedAt: Date;
+    }, "passwordHash"> & {
+        passwordHash?: string;
     }>;
     createUser(data: CreateUserDto): Promise<{
         id: number;
+        name: string;
         username: string;
         passwordHash: string;
-        name: string;
         phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
@@ -180,9 +185,9 @@ export declare class AdminController {
     }>;
     updateUser(id: number, data: UpdateUserDto): Promise<{
         id: number;
+        name: string;
         username: string;
         passwordHash: string;
-        name: string;
         phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
@@ -190,15 +195,15 @@ export declare class AdminController {
     }>;
     deleteUser(id: number): Promise<{
         id: number;
+        name: string;
         username: string;
         passwordHash: string;
-        name: string;
         phone: string | null;
         role: import("@prisma/client").$Enums.Role;
         createdAt: Date;
         updatedAt: Date;
     }>;
-    importRetailers(req: any): Promise<unknown>;
+    importRetailers(req: Request): Promise<unknown>;
     bulkAssign(bulkAssignDto: BulkAssignDto): Promise<import("@prisma/client").Prisma.BatchPayload>;
     bulkUnassign(bulkAssignDto: BulkAssignDto): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }
